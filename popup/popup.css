@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=BIZ+UDPGothic&display=swap");
+
+:root {
+  --font-color: rgba(255, 255, 255, 0.7);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "BIZ UDPGothic", sans-serif;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  width: 320px;
+}
+
+header {
+  height: 70px;
+  background-color: rgba(32, 33, 36, 0.9);
+}
+
+details > summary {
+  list-style: none;
+}
+
+.container-header {
+  display: flex;
+  align-items: center;
+  width: 280px;
+  height: inherit;
+  margin: auto;
+}
+
+.container {
+  background-color: rgb(32, 33, 36);
+  color: var(--font-color);
+  font-size: 1.4rem;
+  /* overflow-y: scroll; */
+}
+
+/* width */
+/* .container::-webkit-scrollbar {
+  width: 10px;
+} */
+
+/* Track */
+/* .container::-webkit-scrollbar-track {
+  background: blue;
+} */
+
+/* Handle */
+/* .container::-webkit-scrollbar-thumb {
+  background: red;
+} */
+
+.bookmarks-menu {
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  opacity: 0.8;
+}
+
+/* bookmark-title */
+.bookmark-title {
+  display: flex;
+  padding: 10px 20px;
+  cursor: default;
+}
+
+.bookmark-video-title {
+  line-height: 2rem;
+}
+
+details:not([open]) .bookmark-video-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* bookmark-title */
+
+/* bookmark-time-list */
+.bookmark-time-list {
+}
+
+.bookmark {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 5px 20px;
+  cursor: pointer;
+}
+
+.bookmark:hover {
+  color: white;
+}
+
+.bookmark-desc {
+  position: relative;
+}
+
+input[type="text"] {
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  border-radius: 3px;
+  font-size: 1.4rem;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+  max-width: 240px;
+}
+
+input[type="text"]:disabled {
+  color: inherit;
+}
+
+input[type="text"]:enabled,
+input[type="text"]:focus {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 10px;
+  cursor: text;
+  max-width: 280px;
+  width: 280px;
+}
+
+label {
+  display: block;
+  margin-top: 3px;
+  font-size: 1rem;
+}
+
+input[type="text"]:enabled + label,
+input[type="text"]:focus + label {
+  position: absolute;
+  margin: 0;
+  bottom: -0.5rem;
+  color: gray;
+}
+
+.bookmark-controls {
+  flex: auto;
+  font-size: 0;
+  line-height: 0;
+  white-space: nowrap;
+}
+
+.hidden {
+  display: none;
+}
+/* bookmark-time-list */
+
+button {
+  background-color: rgba(255, 255, 255, 0);
+  outline: none;
+  border: none;
+}
+
+/* icon */
+button[class*="tm-icon-"] {
+  fill: rgba(255, 255, 255, 0);
+}
+button[class*="tm-icon-"]:hover {
+  fill: rgba(255, 255, 255, 0.1);
+}
+button[class*="tm-icon-"]:active {
+  fill: rgba(255, 255, 255, 0.2);
+}
+
+.tm-icon-s {
+  width: 20px;
+  height: 20px;
+}
+
+.tm-icon-m {
+  width: 40px;
+  height: 40px;
+}
+
+symbol[id*="icon-"] path {
+  fill: white;
+}

@@ -1,0 +1,6 @@
+{
+  "app_description": {
+    "message": "Save the timestamp of the currently viewed video.",
+    "description": "The description of the application, displayed in the web store."
+  }
+}

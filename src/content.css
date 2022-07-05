@@ -1,0 +1,26 @@
+.timemark-btn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(134, 134, 134, 0.9);
+  width: 40px;
+  height: 40px;
+  top: 10px;
+  left: 10px;
+  border-radius: 10px;
+  z-index: 99999;
+  opacity: 0;
+}
+
+.timemark-btn:hover {
+  background-color: rgba(100, 100, 100, 0.9);
+}
+.timemark-btn:active {
+  background-color: rgba(63, 63, 63, 0.9);
+}
+
+.timemark-btn-icon {
+  width: 35px;
+  height: 35px;
+}

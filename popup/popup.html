@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="popup.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <header>
+      <div class="container-header">
+        <div class="bookmark-controls">
+          <button class="bookmark-control-save tm-icon-m">
+            <svg viewBox="0 0 100 100">
+              <use href="#icon-save"></use>
+            </svg>
+          </button>
+          <button class="bookmark-control-trash tm-icon-m">
+            <svg viewBox="0 0 100 100">
+              <use href="#icon-trash"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="bookmarks-menu">Current Bookmarks</div>
+      <div class="bookmarks" id="current-bookmarks"></div>
+      <div class="bookmarks-menu">Other bookmarks</div>
+      <div class="bookmarks" id="other-bookmarks"></div>
+    </div>
+
+    <svg style="display: none">
+      <symbol id="icon-delete">
+        <title>Delete</title>
+        <circle cx="50" cy="50" r="50" />
+        <path
+          d="m 73.385564,26.614436 a 5.5120303,5.5120303 0 0 0 -7.795188,0 L 50,42.204811 34.409623,26.614436 a 5.5120303,5.5120303 0 0 0 -7.795187,0 5.5120303,5.5120303 0 0 0 0,7.795188 L 42.204811,50 26.614436,65.590376 a 5.5120303,5.5120303 0 0 0 0,7.795188 5.5120303,5.5120303 0 0 0 7.795187,0 L 50,57.795188 65.590375,73.385563 a 5.5120303,5.5120303 0 0 0 7.795188,0 5.5120303,5.5120303 0 0 0 0,-7.795188 L 57.795188,50 73.385564,34.409624 a 5.5120303,5.5120303 0 0 0 0,-7.795188 z"
+        />
+      </symbol>
+      <symbol id="icon-save">
+        <title>Export...</title>
+        <circle cx="50" cy="50" r="50"></circle>
+        <path
+          d="M 41.666994,25 V 45.689452 H 30 l 20.000001,20.689453 20,-20.689453 H 58.33301 V 25 Z m 8.333007,41.378905 H 30 V 75 h 40.000001 v -8.621095 z"
+        />
+      </symbol>
+      <symbol id="icon-trash">
+        <title>Delete All</title>
+        <circle cx="50" cy="50" r="50"></circle>
+        <path
+          d="M 41.328125,26.727539 C 41.855469,25.66875 42.939453,25 44.121094,25 h 11.757812 c 1.181641,0 2.265625,0.66875 2.792969,1.727539 L 59.375,28.125 h 9.375 c 1.728515,0 3.125,1.399414 3.125,3.125 0,1.725586 -1.396485,3.125 -3.125,3.125 h -37.5 c -1.725586,0 -3.125,-1.399414 -3.125,-3.125 0,-1.725586 1.399414,-3.125 3.125,-3.125 h 9.375 z M 66.679687,70.517578 C 66.523437,73.076172 64.482422,75 62.001953,75 H 37.998047 c -2.475586,0 -4.524414,-1.923828 -4.678711,-4.482422 L 31.162109,37.5 H 68.75 Z"
+        ></path>
+      </symbol>
+      <symbol id="icon-edit">
+        <title>Edit</title>
+        <circle cx="50" cy="50" r="50"></circle>
+        <path
+          d="m 60.458005,26.833039 c 2.444032,-2.444052 6.413141,-2.444052 8.857173,0 l 3.851795,3.855067 c 2.444036,2.443267 2.444036,6.408812 0,8.853059 L 68.435326,44.273226 55.726356,31.565098 Z M 66.22592,46.482824 43.427984,69.272977 c -1.016717,1.016806 -2.277838,1.769634 -3.656273,2.170491 l -11.763618,3.461053 c -0.82315,0.244427 -1.713755,0.01955 -2.320853,-0.674612 -0.607117,-0.518181 -0.8341,-1.407886 -0.591847,-2.23893 l 3.460164,-11.761713 c 0.406687,-1.378555 1.152606,-2.639786 2.170301,-3.656593 L 53.516951,33.776654 Z"
+        ></path>
+      </symbol>
+    </svg>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
