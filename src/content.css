@@ -24,3 +24,8 @@
   width: 35px;
   height: 35px;
 }
+
+.ytp-player-minimized .timemark-btn {
+  display: none;
+  z-index: 0;
+}

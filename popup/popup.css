@@ -147,7 +147,8 @@ input[type="text"]:focus + label {
 }
 
 .bookmark-controls {
-  flex: auto;
+  /* flex: auto; */
+  flex-basis: fit-content;
   font-size: 0;
   line-height: 0;
   white-space: nowrap;
