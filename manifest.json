@@ -12,7 +12,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.youtube.com/*"],
+      "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*"],
       "run_at": "document_start",
       "js": ["js/contentScript.js"],
       "css": ["src/content.css"]
@@ -21,7 +21,7 @@
   "web_accessible_resources": [
     {
       "resources": ["src/*"],
-      "matches": ["https://*.youtube.com/*"]
+      "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*"]
     }
   ],
   "action": {

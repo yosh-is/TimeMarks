@@ -103,6 +103,7 @@ details:not([open]) .bookmark-video-title {
 }
 
 .bookmark-desc {
+  flex: auto;
   position: relative;
 }
 
@@ -116,7 +117,7 @@ input[type="text"] {
   color: inherit;
   display: block;
   cursor: pointer;
-  max-width: 240px;
+  max-width: 235px;
 }
 
 input[type="text"]:disabled {
@@ -128,7 +129,7 @@ input[type="text"]:focus {
   background: rgba(255, 255, 255, 0.1);
   padding: 10px 10px;
   cursor: text;
-  max-width: 280px;
+  min-width: 280px;
   width: 280px;
 }
 
@@ -147,11 +148,11 @@ input[type="text"]:focus + label {
 }
 
 .bookmark-controls {
-  /* flex: auto; */
   flex-basis: fit-content;
   font-size: 0;
   line-height: 0;
   white-space: nowrap;
+  margin-left: 5px;
 }
 
 .hidden {
@@ -160,7 +161,7 @@ input[type="text"]:focus + label {
 /* bookmark-time-list */
 
 button {
-  background-color: rgba(255, 255, 255, 0);
+  background-color: rgba(0, 0, 0, 0);
   outline: none;
   border: none;
 }

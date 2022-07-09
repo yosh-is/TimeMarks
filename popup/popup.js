@@ -1,4 +1,33 @@
 import { getCurrentTab, htmlToElement } from "../utils/utils.js";
+import { allowedUrls } from "../config/allowedUrls.js";
+
+class ActiveItem {
+  #config = {
+    youtube: "https://www.youtube.com/watch?v=",
+    twitch: "https://www.twitch.tv/videos/",
+  };
+
+  constructor() {
+    return this.#init();
+  }
+
+  async #init() {
+    this.activeTab = await getCurrentTab();
+    this.activeURL = new URL(this.activeTab.url);
+    return this;
+  }
+
+  get currentVideoId() {
+    // youtube ?? twitch
+    return this.activeURL.searchParams.get("v") ?? this.activeURL.pathname.split("/")[2];
+  }
+
+  get siteName() {
+    return this.activeURL.hostname.split(".")[1];
+  }
+}
+
+let activeItem;
 
 /**
  * ブックマークタイトルの作成
@@ -26,7 +55,7 @@ const createBookmarkVideoTitle = (title) => {
 };
 
 /**
- * ブックマークリストエレメントの作成
+ * ブックマークリストを作成
  * @param {Object} bookmarks
  * @returns
  */
@@ -93,7 +122,12 @@ const setBookmarkAttributes = (src, controlsElement) => {
   });
 };
 
-//
+/**
+ * videoId ごとの要素を作成
+ * @param {object} db
+ * @param {string} videoId
+ * @returns
+ */
 const createBookmarkItemElement = (db, videoId) => {
   if (!(db?.["bookmarks"]?.length > 0)) {
     return;
@@ -124,18 +158,18 @@ const viewBookmarks = (allBookmarks = {}, currentVideo) => {
   currentBookmarksElement.innerHTML = "";
   otherBookmarksElement.innerHTML = "";
 
-  const keys = Object.keys(allBookmarks);
+  const videoIds = Object.keys(allBookmarks);
 
-  if (keys.length === 0 || !(allBookmarks.constructor === Object)) {
+  if (videoIds.length === 0 || !(allBookmarks.constructor === Object)) {
     return;
   }
 
-  keys.forEach((key) => {
-    const bookmark = JSON.parse(allBookmarks[key]);
+  videoIds.forEach((videoId) => {
+    const bookmark = JSON.parse(allBookmarks[videoId]);
 
-    const bookmarkItemElement = createBookmarkItemElement(bookmark, key);
+    const bookmarkItemElement = createBookmarkItemElement(bookmark, videoId);
 
-    if (key === currentVideo) {
+    if (videoId === currentVideo) {
       bookmarkItemElement.open = true;
       currentBookmarksElement.appendChild(bookmarkItemElement);
     } else {
@@ -153,19 +187,14 @@ const resTest = () => {
  * @param {Event} e
  */
 const onPlay = async (e) => {
-  console.log("play");
   if (e.defaultPrevented) return;
+
   const bookmarkElement = e.currentTarget;
   const bookmarkTime = bookmarkElement.getAttribute("timestamp");
   const videoId = bookmarkElement.parentElement.parentElement.id;
 
-  const activeTab = await getCurrentTab();
-  const queryParams = activeTab.url.split("?")[1];
-  const urlParams = new URLSearchParams(queryParams);
-  const currentVideoId = urlParams.get("v");
-
-  if (currentVideoId === videoId) {
-    chrome.tabs.sendMessage(activeTab.id, {
+  if (activeItem.currentVideoId === videoId) {
+    chrome.tabs.sendMessage(activeItem.activeTab.id, {
       type: "PLAY",
       value: bookmarkTime,
     });
@@ -246,6 +275,7 @@ const onDelete = async (e) => {
 const onDeleteAll = async () => {
   viewBookmarks({});
   const activeTab = await getCurrentTab();
+
   chrome.tabs.sendMessage(
     activeTab.id,
     {
@@ -268,16 +298,12 @@ const toExport = async () => {
 
 // popup
 document.addEventListener("DOMContentLoaded", async () => {
-  const activeTab = await getCurrentTab();
-  const queryParams = activeTab.url.split("?")[1];
-  const urlParams = new URLSearchParams(queryParams);
+  activeItem = await new ActiveItem();
 
-  const currentVideo = urlParams.get("v");
-
-  if (activeTab.url.includes("https://www.youtube.com/")) {
+  if (allowedUrls.includes(activeItem.activeURL.hostname)) {
     chrome.storage.sync.get(null, (allBookmarks) => {
       if (!(Object.keys(allBookmarks).length === 0)) {
-        viewBookmarks(allBookmarks, currentVideo);
+        viewBookmarks(allBookmarks, activeItem.currentVideoId);
       }
     });
     // popup.html header section

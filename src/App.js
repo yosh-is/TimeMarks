@@ -1,6 +1,8 @@
 import { BookmarkItem } from "./BookmarkItme.js";
 
 export class App {
+  #config = { youtube: ".html5-video-player", twitch: ".video-player__container" };
+
   constructor() {
     this.bookmarkItem = new BookmarkItem();
     /**
@@ -14,16 +16,21 @@ export class App {
 
   /**
    * 読み込まれたページにブックマークボタンを作成
+   *
+   * name = | youtube | twitch |
+   * @param {string} name 動画サービスの名称
    */
-  newVideoLoaded() {
+  newVideoLoaded(name) {
     const bookmarkBtnExists = document.getElementsByClassName("timemark-btn")[0];
 
     // ブックマークボタンの作成、配置
     if (!bookmarkBtnExists) {
-      this.videoPlayer = document.getElementsByClassName("video-stream")[0];
+      console.log("ボタンを作るよ。");
+      this.videoPlayer = document.querySelector("video");
 
-      // ホバーしたらボタンを表示したい;
-      const bookmarkControl = document.querySelector(".html5-video-player");
+      // videoにホバーしたらボタンを表示したい;
+      const bookmarkControl = document.querySelector(this.#config[name]);
+
       const html = `
       <div class="timemark-btn">
         <div class="timemark-btn-icon" title="Click to bookmark current timestamp">
@@ -64,7 +71,7 @@ export class App {
     const newBookmark = {
       id: 1,
       time: currentTime,
-      desc: "Bookmark at " + getTime(currentTime),
+      desc: "Timestamp at " + getTime(currentTime),
     };
 
     this.bookmarkItem.addBookmark(this.cuurentVideo, newBookmark);
@@ -78,7 +85,7 @@ export class App {
       switch (type) {
         case "NEW":
           this.cuurentVideo = videoId;
-          this.newVideoLoaded();
+          this.newVideoLoaded(value);
           break;
 
         case "UPDATE":

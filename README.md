@@ -2,7 +2,9 @@
 
 Save the timestamp of the currently viewed video.
 
-- YouTube
+## Supported sites
+- YouTube 
+- Twitch (video archive only)
 
 現在、視聴しているビデオのタイムスタンプを保存します。
 
