@@ -1,7 +1,6 @@
-// YouTube は <meta itemprop=""...> あたりから取得できそうだけど、API を利用するか悩む
-// 他のサイトへ実装する際に考える
 export class BookmarkItem {
   constructor() {
+    this.siteName = "";
     this.videoId = "";
     this.title = "";
     this.bookmarks = [];
@@ -37,6 +36,7 @@ export class BookmarkItem {
 
       this.bookmarks = [...item["bookmarks"], newBookmark].sort((a, b) => a.time - b.time);
     } else {
+      newBookmark["id"] = 1;
       this.bookmarks = [newBookmark];
     }
 
@@ -93,13 +93,11 @@ export class BookmarkItem {
   async exportBookmark() {
     const items = await chrome.storage.sync.get(null);
 
-    const values = Object.values(items);
-
     let temp = {};
-    values.forEach((data, i) => {
-      const obj = JSON.parse(data);
-      temp[i] = obj;
-    });
+    for (const [key, value] of Object.entries(items)) {
+      const obj = JSON.parse(value);
+      temp[key] = obj;
+    }
 
     const contents = JSON.stringify(temp, null, 2);
 

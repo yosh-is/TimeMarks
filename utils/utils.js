@@ -18,3 +18,15 @@ export function htmlToElement(html) {
   template.insertAdjacentHTML("beforeend", html);
   return template.firstElementChild;
 }
+
+/**
+ * 秒をdateに変換する。
+ * @param {number} t
+ * @returns
+ */
+export const getTime = (t) => {
+  var date = new Date(0);
+  date.setSeconds(t);
+
+  return date.toISOString().substring(11, 19);
+};

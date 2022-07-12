@@ -44,23 +44,26 @@ details > summary {
   background-color: rgb(32, 33, 36);
   color: var(--font-color);
   font-size: 1.4rem;
-  /* overflow-y: scroll; */
+  max-height: 500px;
+  overflow-y: scroll;
 }
 
 /* width */
-/* .container::-webkit-scrollbar {
+.container::-webkit-scrollbar {
   width: 10px;
-} */
+}
 
 /* Track */
-/* .container::-webkit-scrollbar-track {
-  background: blue;
-} */
+.container::-webkit-scrollbar-track {
+  /* background: blue; */
+}
 
 /* Handle */
-/* .container::-webkit-scrollbar-thumb {
-  background: red;
-} */
+.container::-webkit-scrollbar-thumb {
+  border: 3px solid rgb(32, 33, 36);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+}
 
 .bookmarks-menu {
   font-size: 1.2rem;
@@ -71,7 +74,7 @@ details > summary {
 /* bookmark-title */
 .bookmark-title {
   display: flex;
-  padding: 10px 20px;
+  padding: 10px 5px 10px 20px;
   cursor: default;
 }
 
@@ -91,15 +94,33 @@ details:not([open]) .bookmark-video-title {
 }
 
 .bookmark {
+  position: relative;
   display: flex;
   align-items: center;
   height: 60px;
-  padding: 5px 20px;
+  padding: 5px 5px 5px 20px;
   cursor: pointer;
 }
 
 .bookmark:hover {
   color: white;
+}
+
+.bookmark::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+  width: 4px;
+  height: 30px;
+  top: 16.2px;
+  left: 9px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 0.15s;
+}
+.bookmark:hover::after {
+  content: "";
+  opacity: 1;
 }
 
 .bookmark-desc {
@@ -117,7 +138,7 @@ input[type="text"] {
   color: inherit;
   display: block;
   cursor: pointer;
-  max-width: 235px;
+  max-width: 240px;
 }
 
 input[type="text"]:disabled {

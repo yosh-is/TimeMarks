@@ -15,12 +15,12 @@
       "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*"],
       "run_at": "document_start",
       "js": ["js/contentScript.js"],
-      "css": ["src/content.css"]
+      "css": ["content/content.css"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/*"],
+      "resources": ["content/*", "src/ActiveItem.js"],
       "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*"]
     }
   ],

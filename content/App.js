@@ -1,4 +1,5 @@
 import { BookmarkItem } from "./BookmarkItme.js";
+import { ActiveItem } from "../src/ActiveItem.js";
 
 export class App {
   #config = { youtube: ".html5-video-player", twitch: ".video-player__container" };
@@ -9,7 +10,6 @@ export class App {
      *
      */
     this.videoPlayer; // HTMLMediaElement <video>
-    this.cuurentVideo = ""; // BookmarkItem へ変更する
 
     this.addNewBookmarkEventHandler = this.addNewBookmarkEventHandler.bind(this);
   }
@@ -62,19 +62,20 @@ export class App {
    * ブックマークの追加
    */
   addNewBookmarkEventHandler() {
+    const activeItem = new ActiveItem(document.location.href);
+
     const title = document.querySelector("title");
     this.bookmarkItem.title = title.innerText;
 
     const currentTime = this.videoPlayer.currentTime;
 
-    // ToDo newBookmark を class BookmarkIteme へ持っていきたい。かモデルクラスにする？
+    // ToDo newBookmark を考える
     const newBookmark = {
-      id: 1,
       time: currentTime,
       desc: "Timestamp at " + getTime(currentTime),
     };
 
-    this.bookmarkItem.addBookmark(this.cuurentVideo, newBookmark);
+    this.bookmarkItem.addBookmark(activeItem.tmId, newBookmark);
   }
 
   mount() {
@@ -84,7 +85,6 @@ export class App {
 
       switch (type) {
         case "NEW":
-          this.cuurentVideo = videoId;
           this.newVideoLoaded(value);
           break;
 

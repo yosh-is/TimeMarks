@@ -1,24 +1,22 @@
 import { getCurrentTab } from "../utils/utils.js";
+import { ActiveItem } from "../src/ActiveItem.js";
 
 const allowedPaths = ["youtube.com/watch", "twitch.tv/videos"];
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   console.log({ tabId, changeInfo, tab });
 
-  const checkPath = allowedPaths.find((value) => {
-    return tab.url.includes(value) ? value : undefined;
+  const checkPath = allowedPaths.find((path) => {
+    return tab.url.includes(path) ? true : false;
   });
 
   if (checkPath && changeInfo.status === "complete") {
-    const activeURL = new URL(tab.url);
-    const queryParams = activeURL.searchParams;
-
-    const videoId = queryParams.get("v") ?? activeURL.pathname.split("/")[2];
+    const activeItem = new ActiveItem(tab.url);
 
     chrome.tabs.sendMessage(tabId, {
       type: "NEW",
-      value: checkPath.split(".")[0],
-      videoId: videoId,
+      value: activeItem.siteName,
+      videoId: activeItem.videoId,
     });
   }
 });

@@ -1,33 +1,6 @@
-import { getCurrentTab, htmlToElement } from "../utils/utils.js";
+import { getCurrentTab, htmlToElement, getTime } from "../utils/utils.js";
+import { ActiveItem } from "../src/ActiveItem.js";
 import { allowedUrls } from "../config/allowedUrls.js";
-
-class ActiveItem {
-  #config = {
-    youtube: "https://www.youtube.com/watch?v=",
-    twitch: "https://www.twitch.tv/videos/",
-  };
-
-  constructor() {
-    return this.#init();
-  }
-
-  async #init() {
-    this.activeTab = await getCurrentTab();
-    this.activeURL = new URL(this.activeTab.url);
-    return this;
-  }
-
-  get currentVideoId() {
-    // youtube ?? twitch
-    return this.activeURL.searchParams.get("v") ?? this.activeURL.pathname.split("/")[2];
-  }
-
-  get siteName() {
-    return this.activeURL.hostname.split(".")[1];
-  }
-}
-
-let activeItem;
 
 /**
  * ブックマークタイトルの作成
@@ -193,14 +166,18 @@ const onPlay = async (e) => {
   const bookmarkTime = bookmarkElement.getAttribute("timestamp");
   const videoId = bookmarkElement.parentElement.parentElement.id;
 
-  if (activeItem.currentVideoId === videoId) {
-    chrome.tabs.sendMessage(activeItem.activeTab.id, {
+  const activeTab = await getCurrentTab();
+  const activeItem = new ActiveItem(activeTab.url);
+
+  if (activeItem.tmId === videoId) {
+    chrome.tabs.sendMessage(activeTab.id, {
       type: "PLAY",
       value: bookmarkTime,
+      videoId: videoId,
     });
   } else {
     await chrome.tabs.create({
-      url: `https://www.youtube.com/watch?v=${videoId}`,
+      url: ActiveItem.createUrl(videoId),
     });
   }
 };
@@ -298,12 +275,13 @@ const toExport = async () => {
 
 // popup
 document.addEventListener("DOMContentLoaded", async () => {
-  activeItem = await new ActiveItem();
+  const activeTab = await getCurrentTab();
+  const activeItem = new ActiveItem(activeTab.url);
 
-  if (allowedUrls.includes(activeItem.activeURL.hostname)) {
+  if (allowedUrls.includes(activeItem.hostname)) {
     chrome.storage.sync.get(null, (allBookmarks) => {
       if (!(Object.keys(allBookmarks).length === 0)) {
-        viewBookmarks(allBookmarks, activeItem.currentVideoId);
+        viewBookmarks(allBookmarks, activeItem.tmId);
       }
     });
     // popup.html header section
@@ -313,15 +291,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector("body").textContent = `This page is not supported.`;
   }
 });
-
-/**
- * 秒をdateに変換する。
- * @param {number} t
- * @returns
- */
-const getTime = (t) => {
-  var date = new Date(0);
-  date.setSeconds(t);
-
-  return date.toISOString().substring(11, 19);
-};
