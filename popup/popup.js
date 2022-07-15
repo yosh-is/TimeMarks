@@ -2,6 +2,8 @@ import { getCurrentTab, htmlToElement, getTime } from "../utils/utils.js";
 import { ActiveItem } from "../src/ActiveItem.js";
 import { allowedUrls } from "../config/allowedUrls.js";
 
+let windowHeight;
+
 /**
  * ブックマークタイトルの作成
  * @param {string} title
@@ -126,8 +128,11 @@ const createBookmarkItemElement = (db, videoId) => {
  * @returns
  */
 const viewBookmarks = (allBookmarks = {}, currentVideo) => {
-  const currentBookmarksElement = document.getElementById("current-bookmarks");
-  const otherBookmarksElement = document.getElementById("other-bookmarks");
+  const container = document.querySelector(".container");
+  container.style.maxHeight = windowHeight;
+
+  const currentBookmarksElement = document.querySelector("#current-bookmarks");
+  const otherBookmarksElement = document.querySelector("#other-bookmarks");
   currentBookmarksElement.innerHTML = "";
   otherBookmarksElement.innerHTML = "";
 
@@ -277,6 +282,8 @@ const toExport = async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const activeTab = await getCurrentTab();
   const activeItem = new ActiveItem(activeTab.url);
+
+  windowHeight = activeTab.height - 70 + "px";
 
   if (allowedUrls.includes(activeItem.hostname)) {
     chrome.storage.sync.get(null, (allBookmarks) => {
