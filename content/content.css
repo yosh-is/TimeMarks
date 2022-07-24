@@ -4,13 +4,21 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(134, 134, 134, 0.9);
+  border-radius: 10px;
   width: 40px;
   height: 40px;
-  top: 10px;
+}
+
+.youtube {
+  top: -50px;
   left: 10px;
-  border-radius: 10px;
-  z-index: 99999;
-  opacity: 0;
+}
+.twitch {
+  top: -50px;
+  left: 10px;
+}
+.unext {
+  position: relative;
 }
 
 .timemark-btn:hover {

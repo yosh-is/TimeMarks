@@ -2,7 +2,7 @@ import { getCurrentTab, htmlToElement, getTime } from "../utils/utils.js";
 import { ActiveItem } from "../src/ActiveItem.js";
 import { allowedUrls } from "../config/allowedUrls.js";
 
-let windowHeight;
+let popupHeight;
 
 /**
  * ブックマークタイトルの作成
@@ -104,10 +104,6 @@ const setBookmarkAttributes = (src, controlsElement) => {
  * @returns
  */
 const createBookmarkItemElement = (db, videoId) => {
-  if (!(db?.["bookmarks"]?.length > 0)) {
-    return;
-  }
-
   const bookmarkItemElement = document.createElement("details");
   bookmarkItemElement.id = videoId;
 
@@ -129,7 +125,7 @@ const createBookmarkItemElement = (db, videoId) => {
  */
 const viewBookmarks = (allBookmarks = {}, currentVideo) => {
   const container = document.querySelector(".container");
-  container.style.maxHeight = windowHeight;
+  container.style.maxHeight = popupHeight;
 
   const currentBookmarksElement = document.querySelector("#current-bookmarks");
   const otherBookmarksElement = document.querySelector("#other-bookmarks");
@@ -154,10 +150,6 @@ const viewBookmarks = (allBookmarks = {}, currentVideo) => {
       otherBookmarksElement.appendChild(bookmarkItemElement);
     }
   });
-};
-
-const resTest = () => {
-  console.log("_");
 };
 
 /**
@@ -231,15 +223,16 @@ const onEdit = async (e) => {
   input.addEventListener("keydown", inputKeydown);
 };
 
+const resTest = (removeElement) => {
+  removeElement.remove();
+};
+
 /**
  * 削除
  */
 const onDelete = async (e) => {
   const removeElement = e.target.closest(".bookmark") ?? e.target.closest("details");
   const videoId = e.target.closest("details").id;
-  const bookmarkId = removeElement.id;
-
-  removeElement.remove();
 
   const activeTab = await getCurrentTab();
 
@@ -247,10 +240,10 @@ const onDelete = async (e) => {
     activeTab.id,
     {
       type: "DELETE",
-      value: bookmarkId !== videoId ? bookmarkId : undefined,
+      value: removeElement.id,
       videoId: videoId,
     },
-    resTest
+    resTest.bind(null, removeElement)
   );
 };
 
@@ -258,13 +251,9 @@ const onDeleteAll = async () => {
   viewBookmarks({});
   const activeTab = await getCurrentTab();
 
-  chrome.tabs.sendMessage(
-    activeTab.id,
-    {
-      type: "DELETE",
-    },
-    resTest
-  );
+  chrome.tabs.sendMessage(activeTab.id, {
+    type: "DELETE",
+  });
 };
 
 /**
@@ -283,7 +272,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const activeTab = await getCurrentTab();
   const activeItem = new ActiveItem(activeTab.url);
 
-  windowHeight = activeTab.height - 70 + "px";
+  popupHeight = activeTab.height > 600 ? "530px" : activeTab.height - 70 + "px";
 
   if (allowedUrls.includes(activeItem.hostname)) {
     chrome.storage.sync.get(null, (allBookmarks) => {

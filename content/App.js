@@ -2,22 +2,39 @@ import { BookmarkItem } from "./BookmarkItme.js";
 import { ActiveItem } from "../src/ActiveItem.js";
 
 export class App {
-  #config = { youtube: ".html5-video-player", twitch: ".video-player__container" };
-
   constructor() {
     this.bookmarkItem = new BookmarkItem();
-    /**
-     *
-     */
+
     this.videoPlayer; // HTMLMediaElement <video>
 
     this.addNewBookmarkEventHandler = this.addNewBookmarkEventHandler.bind(this);
   }
 
+  // ボタンを挿入するエレメント
+  #config = {
+    youtube: ".ytp-chrome-bottom",
+    twitch: ".video-player__default-player .player-controls",
+    unext: "div[class^='Controls__FlexLayout-sc-']",
+  };
+
+  // ビデオのタイトルを取得
+  #getTitle = {
+    youtube: () => {
+      return document.querySelector("meta[name='title']").content;
+    },
+    twitch: () => {
+      return document.querySelector("title").innerText;
+    },
+    unext: () => {
+      const titleElm = document.querySelector("div[class^='Header__TitleContainer-sc-']");
+      return titleElm.textContent.replaceAll("\n", "").trim();
+    },
+  };
+
   /**
    * 読み込まれたページにブックマークボタンを作成
    *
-   * name = | youtube | twitch |
+   * name = | youtube | twitch | unext
    * @param {string} name 動画サービスの名称
    */
   newVideoLoaded(name) {
@@ -25,7 +42,6 @@ export class App {
 
     // ブックマークボタンの作成、配置
     if (!bookmarkBtnExists) {
-      console.log("ボタンを作るよ。");
       this.videoPlayer = document.querySelector("video");
 
       // videoにホバーしたらボタンを表示したい;
@@ -46,13 +62,7 @@ export class App {
 
       bookmarkControl.insertAdjacentHTML("beforeend", html);
       const bookmarkBtn = bookmarkControl.querySelector(".timemark-btn");
-
-      bookmarkControl.addEventListener("mouseover", () => {
-        bookmarkBtn.style.opacity = "1";
-      });
-      bookmarkControl.addEventListener("mouseout", () => {
-        bookmarkBtn.style.opacity = "0";
-      });
+      bookmarkBtn.classList.add(name);
 
       bookmarkBtn.addEventListener("click", this.addNewBookmarkEventHandler);
     }
@@ -64,8 +74,7 @@ export class App {
   addNewBookmarkEventHandler() {
     const activeItem = new ActiveItem(document.location.href);
 
-    const title = document.querySelector("title");
-    this.bookmarkItem.title = title.innerText;
+    this.bookmarkItem.title = this.#getTitle[activeItem.siteName]();
 
     const currentTime = this.videoPlayer.currentTime;
 

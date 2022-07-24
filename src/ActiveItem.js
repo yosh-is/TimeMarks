@@ -1,7 +1,8 @@
 export class ActiveItem extends URL {
   static #config = {
     youtube: "https://www.youtube.com/watch?v=",
-    twitch: "https://www.twitch.tv/videos/",
+    twitch: "https://www.twitch.tv",
+    unext: "https://video.unext.jp",
   };
 
   constructor(url) {
@@ -9,8 +10,9 @@ export class ActiveItem extends URL {
   }
 
   get videoId() {
-    // youtube ?? twitch
-    return this.searchParams.get("v") ?? this.pathname.split("/")[2];
+    // youtube ?? twitch | unext
+    // return this.searchParams.get("v") ?? this.pathname.split("/")[2];
+    return this.searchParams.get("v") ?? this.pathname;
   }
 
   get siteName() {

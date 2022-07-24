@@ -25,11 +25,9 @@ body {
 
 header {
   height: 70px;
+  top: 0;
   background-color: rgba(32, 33, 36, 0.9);
-}
-
-details > summary {
-  list-style: none;
+  z-index: 99999;
 }
 
 .container-header {
@@ -41,10 +39,12 @@ details > summary {
 }
 
 .container {
+  position: relative;
+  width: inherit;
   background-color: rgb(32, 33, 36);
   color: var(--font-color);
   font-size: 1.4rem;
-  /* max-height: 500px; */
+  overflow-x: hidden;
   overflow-y: scroll;
 }
 
@@ -71,11 +71,21 @@ details > summary {
   opacity: 0.8;
 }
 
+.bookmarks {
+  width: inherit;
+}
+
 /* bookmark-title */
+details > summary {
+  list-style: none;
+}
+
 .bookmark-title {
+  position: relative;
   display: flex;
+  gap: 5px;
   justify-content: space-between;
-  padding: 10px 5px 10px 20px;
+  padding: 10px 20px;
   cursor: default;
 }
 
@@ -88,6 +98,26 @@ details:not([open]) .bookmark-video-title {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* 三角 */
+.bookmark-title::after {
+  content: "";
+  position: absolute;
+  border-style: solid;
+  border-width: 0.5rem 0 0.5rem 0.85rem;
+  border-color: transparent transparent transparent var(--font-color);
+  top: 14px;
+  left: 7px;
+  opacity: 0;
+  transform: rotate(0.25turn);
+  transition: all 0.15s;
+}
+.bookmark-title:hover::after {
+  opacity: 1;
+}
+details:not([open]) .bookmark-title::after {
+  transform: rotate(0turn);
+}
 /* bookmark-title */
 
 /* bookmark-time-list */
@@ -99,7 +129,7 @@ details:not([open]) .bookmark-video-title {
   display: flex;
   align-items: center;
   height: 60px;
-  padding: 5px 5px 5px 20px;
+  padding: 5px 20px;
   cursor: pointer;
 }
 
@@ -139,20 +169,17 @@ input[type="text"] {
   color: inherit;
   display: block;
   cursor: pointer;
+  width: 240px;
   max-width: 240px;
+  padding-right: 10px;
 }
 
-input[type="text"]:disabled {
-  color: inherit;
-}
-
-input[type="text"]:enabled,
-input[type="text"]:focus {
+input[type="text"]:is(:enabled, :focus) {
   background: rgba(255, 255, 255, 0.1);
   padding: 10px 10px;
   cursor: text;
-  min-width: 280px;
   width: 280px;
+  min-width: 280px;
 }
 
 label {
@@ -161,8 +188,7 @@ label {
   font-size: 1rem;
 }
 
-input[type="text"]:enabled + label,
-input[type="text"]:focus + label {
+input[type="text"]:enabled + label {
   position: absolute;
   margin: 0;
   bottom: -0.5rem;
@@ -174,7 +200,6 @@ input[type="text"]:focus + label {
   font-size: 0;
   line-height: 0;
   white-space: nowrap;
-  margin-left: 5px;
 }
 
 .hidden {
@@ -200,13 +225,13 @@ button[class*="tm-icon-"]:active {
 }
 
 .tm-icon-s {
-  width: 20px;
-  height: 20px;
+  width: 2rem;
+  height: 2rem;
 }
 
 .tm-icon-m {
-  width: 40px;
-  height: 40px;
+  width: 4rem;
+  height: 4rem;
 }
 
 symbol[id*="icon-"] path {

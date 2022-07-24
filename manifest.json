@@ -1,18 +1,22 @@
 {
   "manifest_version": 3,
   "name": "TimeMarks",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "__MSG_app_description__",
   "default_locale": "ja",
   "permissions": ["storage", "tabs"],
-  "host_permissions": ["https://*.youtube.com/*", "https://*.twitch.tv/*"],
+  "host_permissions": [
+    "https://*.youtube.com/*",
+    "https://*.twitch.tv/*",
+    "https://video.unext.jp/*"
+  ],
   "background": {
     "service_worker": "js/background.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*"],
+      "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*", "https://video.unext.jp/*"],
       "run_at": "document_start",
       "js": ["js/contentScript.js"],
       "css": ["content/content.css"]
@@ -21,7 +25,7 @@
   "web_accessible_resources": [
     {
       "resources": ["content/*", "src/ActiveItem.js"],
-      "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*"]
+      "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*", "https://video.unext.jp/*"]
     }
   ],
   "action": {

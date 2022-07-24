@@ -1,13 +1,13 @@
 import { getCurrentTab } from "../utils/utils.js";
 import { ActiveItem } from "../src/ActiveItem.js";
 
-const allowedPaths = ["youtube.com/watch", "twitch.tv/videos"];
+const allowedPaths = ["youtube.com/watch", "twitch.tv/videos", "unext.jp/play"];
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log({ tabId, changeInfo, tab });
+  // console.log({ tabId, changeInfo, tab });
 
   const checkPath = allowedPaths.find((path) => {
-    return tab.url.includes(path) ? true : false;
+    return tab.url.includes(path);
   });
 
   if (checkPath && changeInfo.status === "complete") {

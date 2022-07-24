@@ -1,9 +1,6 @@
 export class BookmarkItem {
   constructor() {
-    this.siteName = "";
-    this.videoId = "";
     this.title = "";
-    this.bookmarks = [];
   }
 
   /**
@@ -28,21 +25,22 @@ export class BookmarkItem {
    * @param {object} newBookmark
    */
   async addBookmark(videoId, newBookmark) {
+    let bookmarks = [];
     const item = await this.fetchBookmarks(videoId);
 
     if (item !== undefined) {
       const ids = Object.values(item["bookmarks"].map((item) => item.id));
       newBookmark["id"] = Math.max(...ids) + 1;
 
-      this.bookmarks = [...item["bookmarks"], newBookmark].sort((a, b) => a.time - b.time);
+      bookmarks = [...item["bookmarks"], newBookmark].sort((a, b) => a.time - b.time);
     } else {
       newBookmark["id"] = 1;
-      this.bookmarks = [newBookmark];
+      bookmarks = [newBookmark];
     }
 
     const updateItem = {
       title: this.title,
-      bookmarks: this.bookmarks,
+      bookmarks: bookmarks,
     };
 
     chrome.storage.sync.set({ [videoId]: JSON.stringify(updateItem) });
@@ -71,19 +69,22 @@ export class BookmarkItem {
    * @param {stirng} id id
    */
   async deleteBookmark(videoId, id) {
-    if (videoId && id) {
+    if (!videoId && !id) {
+      chrome.storage.sync.clear();
+    } else if (videoId !== id) {
       const item = await this.fetchBookmarks(videoId);
       const bookmarks = item["bookmarks"].filter((b) => {
         return b.id != id;
       });
 
-      item["bookmarks"] = bookmarks;
-
-      chrome.storage.sync.set({ [videoId]: JSON.stringify(item) });
-    } else if (videoId && !id) {
+      if (bookmarks.length === 0) {
+        chrome.storage.sync.remove(videoId);
+      } else {
+        item["bookmarks"] = bookmarks;
+        chrome.storage.sync.set({ [videoId]: JSON.stringify(item) });
+      }
+    } else if (videoId === id) {
       chrome.storage.sync.remove(videoId);
-    } else {
-      chrome.storage.sync.clear();
     }
   }
 
