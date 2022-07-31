@@ -37,3 +37,21 @@
   display: none;
   z-index: 0;
 }
+
+/*  */
+.tm-side-panel {
+  position: fixed;
+  background-color: rgb(32, 33, 36);
+  width: 400px;
+  height: 100vh;
+  top: 0;
+  right: -400px;
+  z-index: 5000;
+}
+
+.tm-side-panel iframe {
+  position: relative;
+  width: inherit;
+  height: inherit;
+  border: none;
+}

@@ -1,5 +1,6 @@
 import { BookmarkItem } from "./BookmarkItme.js";
 import { ActiveItem } from "../src/ActiveItem.js";
+import { toggle } from "./sidepanel.js";
 
 export class App {
   constructor() {
@@ -20,10 +21,10 @@ export class App {
   // ビデオのタイトルを取得
   #getTitle = {
     youtube: () => {
-      return document.querySelector("meta[name='title']").content;
+      return document.querySelector(".watch-active-metadata h1").innerText;
     },
     twitch: () => {
-      return document.querySelector("title").innerText;
+      return document.querySelector("[data-a-target='stream-title']").title;
     },
     unext: () => {
       const titleElm = document.querySelector("div[class^='Header__TitleContainer-sc-']");
@@ -103,7 +104,6 @@ export class App {
 
         case "PLAY":
           this.videoPlayer.currentTime = value;
-          // this.videoPlayer.play();
           break;
 
         case "DELETE":
@@ -113,6 +113,14 @@ export class App {
 
         case "EXPORT":
           this.bookmarkItem.exportBookmark();
+          break;
+
+        case "add-tm":
+          this.addNewBookmarkEventHandler();
+          break;
+
+        case "toggle":
+          toggle();
           break;
 
         default:

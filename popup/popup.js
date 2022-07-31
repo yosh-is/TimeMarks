@@ -2,8 +2,6 @@ import { getCurrentTab, htmlToElement, getTime } from "../utils/utils.js";
 import { ActiveItem } from "../src/ActiveItem.js";
 import { allowedUrls } from "../config/allowedUrls.js";
 
-let popupHeight;
-
 /**
  * ブックマークタイトルの作成
  * @param {string} title
@@ -16,15 +14,14 @@ const createBookmarkVideoTitle = (title) => {
       <div class="bookmark-video-title">
         ${title}
       </div>
-      <div class="bookmark-controls">
-      </div>
+      <div class="bookmark-controls"></div>
     </div>
   </summary>
   `;
 
   const bookmarkVideoTitleElement = htmlToElement(html);
 
-  setBookmarkAttributes("delete", bookmarkVideoTitleElement.querySelector(".bookmark-controls"));
+  setBookmarkAttributes("delete", bookmarkVideoTitleElement);
 
   return bookmarkVideoTitleElement;
 };
@@ -51,10 +48,7 @@ const createBookmarkTimeList = (bookmarks) => {
 
     const bookmarkElement = htmlToElement(html);
 
-    const controlsElement = bookmarkElement.querySelector(".bookmark-controls");
-
-    setBookmarkAttributes(["edit", "delete"], controlsElement);
-
+    setBookmarkAttributes(["edit", "delete"], bookmarkElement);
     bookmarkElement.addEventListener("click", onPlay);
 
     bookmarkTimeListElement.appendChild(bookmarkElement);
@@ -69,7 +63,9 @@ const createBookmarkTimeList = (bookmarks) => {
  * @param {string | string[]} src
  * @param {HTMLElement} controlsElement
  */
-const setBookmarkAttributes = (src, controlsElement) => {
+const setBookmarkAttributes = (src, element) => {
+  const controlsElement = element.querySelector(".bookmark-controls");
+
   if (!Array.isArray(src)) {
     src = [src];
   }
@@ -90,7 +86,7 @@ const setBookmarkAttributes = (src, controlsElement) => {
     e.stopImmediatePropagation();
 
     const onAction = { edit: onEdit, delete: onDelete };
-    let action = e.target?.closest("button")?.dataset?.action ?? undefined;
+    let action = e.target.closest("[data-action]").dataset.action ?? undefined;
     if (action) {
       onAction[action](e);
     }
@@ -125,7 +121,6 @@ const createBookmarkItemElement = (db, videoId) => {
  */
 const viewBookmarks = (allBookmarks = {}, currentVideo) => {
   const container = document.querySelector(".container");
-  container.style.maxHeight = popupHeight;
 
   const currentBookmarksElement = document.querySelector("#current-bookmarks");
   const otherBookmarksElement = document.querySelector("#other-bookmarks");
@@ -192,7 +187,6 @@ const onEdit = async (e) => {
   const input = targetElement.querySelector("input");
 
   const controlsElement = targetElement.querySelector(".bookmark-controls");
-  controlsElement.classList.add("hidden");
 
   input.toggleAttribute("disabled");
   input.focus();
@@ -272,8 +266,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const activeTab = await getCurrentTab();
   const activeItem = new ActiveItem(activeTab.url);
 
-  popupHeight = activeTab.height > 600 ? "530px" : activeTab.height - 70 + "px";
-
   if (allowedUrls.includes(activeItem.hostname)) {
     chrome.storage.sync.get(null, (allBookmarks) => {
       if (!(Object.keys(allBookmarks).length === 0)) {
@@ -287,3 +279,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector("body").textContent = `This page is not supported.`;
   }
 });
+
+// iframe でのメッセージのやりとり
+// window.addEventListener("message", (event) => {
+//   //postMessage から飛んでくる、セキュリティ面を調べる
+//   console.log(event.data);
+//   // IMPORTANT: check the origin of the data!
+//   if (event.origin.startsWith("http://your-first-site.example")) {
+//     // The data was sent from your site.
+//     // Data sent with postMessage is stored in event.data:
+//     console.log(event.data);
+//   } else {
+//     console.log("else");
+//     // The data was NOT sent from your site!
+//     // Be careful! Do not use it. This else branch is
+//     // here just for clarity, you usually shouldn't need it.
+//     return;
+//   }
+// });

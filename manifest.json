@@ -24,23 +24,23 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["content/*", "src/ActiveItem.js"],
+      "resources": ["content/*", "popup/*", "src/ActiveItem.js"],
       "matches": ["https://*.youtube.com/*", "https://*.twitch.tv/*", "https://video.unext.jp/*"]
     }
   ],
-  "action": {
-    "default_icon": {
-      "16": "assets/timemarks.png",
-      "24": "assets/timemarks.png",
-      "32": "assets/timemarks.png"
-    },
-    "default_title": "TimeMarks",
-    "default_popup": "popup/popup.html"
-  },
+  "action": {},
   "icons": {
     "16": "assets/tm-icon.png",
     "32": "assets/tm-icon.png",
     "48": "assets/tm-icon.png",
     "128": "assets/tm-icon.png"
+  },
+  "commands": {
+    "add-tm": {
+      "suggested_key": {
+        "default": "Ctrl+B"
+      },
+      "description": "Save the current time of the video."
+    }
   }
 }
