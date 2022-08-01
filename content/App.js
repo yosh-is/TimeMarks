@@ -85,6 +85,14 @@ export class App {
       desc: "Timestamp at " + getTime(currentTime),
     };
 
+    const iframe = document.querySelector(".tm-side-panel iframe");
+    if (iframe) {
+      const src = chrome.runtime.getURL("popup/popup.html");
+      const res = () => {
+        iframe.contentWindow.postMessage({ id: activeItem.tmId }, src);
+      };
+      this.bookmarkItem.addBookmark(activeItem.tmId, newBookmark, res);
+    }
     this.bookmarkItem.addBookmark(activeItem.tmId, newBookmark);
   }
 
@@ -115,12 +123,14 @@ export class App {
           this.bookmarkItem.exportBookmark();
           break;
 
-        case "add-tm":
-          this.addNewBookmarkEventHandler();
-          break;
-
+        // サイドパネル
         case "toggle":
           toggle();
+          break;
+
+        // shortcut command
+        case "add-tm":
+          this.addNewBookmarkEventHandler();
           break;
 
         default:

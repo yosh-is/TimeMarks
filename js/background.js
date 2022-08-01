@@ -37,7 +37,7 @@ chrome.commands.onCommand.addListener((command, tab) => {
   }
 });
 
-//
+// view sidepanel
 chrome.action.onClicked.addListener((tab) => {
   console.log("sidepanel");
 
@@ -49,6 +49,23 @@ chrome.action.onClicked.addListener((tab) => {
     chrome.tabs.sendMessage(tab.id, { type: "toggle" });
   }
 });
+
+// chrome.storage の内容に変更があったよ
+// 便利
+// chrome.storage.onChanged.addListener((changes, areaName) => {
+//   console.log(changes, areaName);
+//   if (!changes) {
+//     return;
+//   }
+
+//   for (const key in changes) {
+//     if (Object.hasOwnProperty.call(changes, key)) {
+//       const element = changes[key];
+//       console.log(element.newValue);
+//       console.log(element.oldValue);
+//     }
+//   }
+// });
 
 // chrome.tabs.onActivated.addListener(async (activeInfo) => {
 //   // console.log("onActivated", activeInfo);

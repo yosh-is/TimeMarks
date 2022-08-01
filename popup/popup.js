@@ -35,12 +35,14 @@ const createBookmarkTimeList = (bookmarks) => {
   const bookmarkTimeListElement = document.createElement("div");
   bookmarkTimeListElement.className = "bookmark-time-list";
 
-  for (let i = 0; i < bookmarks.length; i++) {
+  const sortedbks = bookmarks.sort((a, b) => a.time - b.time);
+
+  for (const { id, time, desc } of sortedbks) {
     const html = `
-      <div id="${bookmarks[i].id}" class="bookmark" timestamp="${bookmarks[i].time}">
+      <div id="${id}" class="bookmark" timestamp="${time}">
         <div class="bookmark-desc">
-          <input type="text" value="${bookmarks[i].desc}" disabled />
-          <label>${getTime(bookmarks[i].time)}</label>
+          <input type="text" value="${desc}" disabled />
+          <label>${getTime(time)}</label>
         </div>
         <div class="bookmark-controls"></div>
       </div>
@@ -266,7 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const activeTab = await getCurrentTab();
   const activeItem = new ActiveItem(activeTab.url);
 
-  if (allowedUrls.includes(activeItem.hostname)) {
+  if (allowedUrls.includes(activeItem.origin)) {
     chrome.storage.sync.get(null, (allBookmarks) => {
       if (!(Object.keys(allBookmarks).length === 0)) {
         viewBookmarks(allBookmarks, activeItem.tmId);
@@ -281,19 +283,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // iframe でのメッセージのやりとり
-// window.addEventListener("message", (event) => {
-//   //postMessage から飛んでくる、セキュリティ面を調べる
-//   console.log(event.data);
-//   // IMPORTANT: check the origin of the data!
-//   if (event.origin.startsWith("http://your-first-site.example")) {
-//     // The data was sent from your site.
-//     // Data sent with postMessage is stored in event.data:
-//     console.log(event.data);
-//   } else {
-//     console.log("else");
-//     // The data was NOT sent from your site!
-//     // Be careful! Do not use it. This else branch is
-//     // here just for clarity, you usually shouldn't need it.
-//     return;
-//   }
-// });
+window.addEventListener("message", async (event) => {
+  // IMPORTANT: check the origin of the data!
+  const tmId = event.data.id;
+  if (allowedUrls.includes(event.origin)) {
+    const db = await chrome.storage.sync.get(tmId);
+    const currentBookmarksElement = document.querySelector("#current-bookmarks");
+    currentBookmarksElement.innerHTML = "";
+
+    const element = createBookmarkItemElement(JSON.parse(db[tmId]), tmId);
+    element.open = true;
+
+    currentBookmarksElement.insertAdjacentElement("afterbegin", element);
+  }
+});

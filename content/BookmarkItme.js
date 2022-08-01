@@ -23,8 +23,9 @@ export class BookmarkItem {
    * ブックマークの追加
    * @param {string} videoId
    * @param {object} newBookmark
+   * @return
    */
-  async addBookmark(videoId, newBookmark) {
+  async addBookmark(videoId, newBookmark, res = this.defaulteres) {
     let bookmarks = [];
     const item = await this.fetchBookmarks(videoId);
 
@@ -32,7 +33,7 @@ export class BookmarkItem {
       const ids = Object.values(item["bookmarks"].map((item) => item.id));
       newBookmark["id"] = Math.max(...ids) + 1;
 
-      bookmarks = [...item["bookmarks"], newBookmark].sort((a, b) => a.time - b.time);
+      bookmarks = [...item["bookmarks"], newBookmark].sort((a, b) => a.id - b.id);
     } else {
       newBookmark["id"] = 1;
       bookmarks = [newBookmark];
@@ -43,7 +44,13 @@ export class BookmarkItem {
       bookmarks: bookmarks,
     };
 
-    chrome.storage.sync.set({ [videoId]: JSON.stringify(updateItem) });
+    await chrome.storage.sync.set({ [videoId]: JSON.stringify(updateItem) });
+    res();
+  }
+
+  defaulteres() {
+    //
+    return;
   }
 
   /**
@@ -58,7 +65,7 @@ export class BookmarkItem {
     const bookmarks = item["bookmarks"].filter((b) => b.id != id);
 
     bookmark["desc"] = desc;
-    item["bookmarks"] = [...bookmarks, bookmark].sort((a, b) => a.time - b.time);
+    item["bookmarks"] = [...bookmarks, bookmark].sort((a, b) => a.id - b.id);
 
     chrome.storage.sync.set({ [videoId]: JSON.stringify(item) });
   }
@@ -97,6 +104,7 @@ export class BookmarkItem {
     let temp = {};
     for (const [key, value] of Object.entries(items)) {
       const obj = JSON.parse(value);
+      obj["bookmarks"] = obj["bookmarks"].sort((a, b) => a.time - b.time);
       temp[key] = obj;
     }
 

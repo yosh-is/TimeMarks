@@ -41,6 +41,7 @@ header {
 .container {
   position: relative;
   width: inherit;
+  height: calc(100vh - 70px);
   background-color: rgb(32, 33, 36);
   color: var(--font-color);
   font-size: 1.4rem;

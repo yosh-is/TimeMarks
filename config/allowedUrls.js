@@ -1,1 +1,5 @@
-export const allowedUrls = ["www.youtube.com", "www.twitch.tv", "video.unext.jp"];
+export const allowedUrls = [
+  "https://www.youtube.com",
+  "https://www.twitch.tv",
+  "https://video.unext.jp",
+];

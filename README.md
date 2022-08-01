@@ -11,3 +11,17 @@ You can install at [Chrome Web Store](https://chrome.google.com/webstore/detail/
 - YouTube 
 - Twitch (video archive only)
 - U-NEXT
+
+## Usage something 使い方
+
+- 動画画面にマウスを近づけると左下にアイコンが表示されます。
+- クリック（または、Ctr + B）すると動画のタイムスタンプが保存されます。
+- 保存されたタイムスタンプを表示するにはブラウザのステータスバーにある拡張機能アイコンをクリックするとウィンドウの右側表示されます。
+- 説明の編集、削除、jsonファイルの書き出し（書き出しはchromeのみ）ができます。
+
+## shortcuts command
+
+| command | desc |
+| --- | --- |
+| Ctrl + B | save timestamp |
+
