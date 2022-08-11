@@ -1,4 +1,4 @@
-const config = { toggle: true };
+const config = { toggle: false };
 
 const sidePanel = document.createElement("div");
 sidePanel.className = "tm-side-panel";
@@ -25,7 +25,7 @@ export function toggle() {
     document.body.insertAdjacentElement("afterbegin", sidePanel);
   }
 
-  if (config.toggle) {
+  if (!config.toggle) {
     iframe.src = chrome.runtime.getURL("popup/popup.html");
     sidePanel.insertAdjacentElement("beforeend", iframe);
     config.toggle = !config.toggle;
@@ -35,5 +35,13 @@ export function toggle() {
     anim.reverse();
     iframe.remove();
     config.toggle = !config.toggle;
+  }
+}
+
+export function reload() {
+  if (config.toggle) {
+    iframe.remove();
+    iframe.src = chrome.runtime.getURL("popup/popup.html");
+    sidePanel.insertAdjacentElement("beforeend", iframe);
   }
 }

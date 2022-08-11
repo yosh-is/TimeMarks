@@ -1,22 +1,8 @@
 export class BookmarkItem {
-  constructor() {
-    this.title = "";
-  }
-
-  /**
-   * ブックマークのリストを取得
-   * @param {string} videoId
-   * @returns
-   */
-  fetchBookmarks(videoId) {
-    if (!videoId) {
-      return undefined;
-    }
-    return new Promise((resolve) => {
-      chrome.storage.sync.get([videoId], (items) => {
-        resolve(items[videoId] ? JSON.parse(items[videoId]) : undefined);
-      });
-    });
+  constructor(videoItem) {
+    this.title = videoItem.title;
+    this.channelTitle = videoItem.channelTitle;
+    this.icon = videoItem.icon;
   }
 
   /**
@@ -27,7 +13,7 @@ export class BookmarkItem {
    */
   async addBookmark(videoId, newBookmark, res = this.defaulteres) {
     let bookmarks = [];
-    const item = await this.fetchBookmarks(videoId);
+    const item = await fetchBookmarks(videoId);
 
     if (item !== undefined) {
       const ids = Object.values(item["bookmarks"].map((item) => item.id));
@@ -41,6 +27,8 @@ export class BookmarkItem {
 
     const updateItem = {
       title: this.title,
+      channelTitle: this.channelTitle,
+      icon: this.icon,
       bookmarks: bookmarks,
     };
 
@@ -59,8 +47,8 @@ export class BookmarkItem {
    * @param {string} id
    * @param {string} desc
    */
-  async updateBookmark(videoId, { id, desc }) {
-    const item = await this.fetchBookmarks(videoId);
+  static async updateBookmark(videoId, { id, desc }) {
+    const item = await fetchBookmarks(videoId);
     const bookmark = item["bookmarks"].find((b) => b.id == id);
     const bookmarks = item["bookmarks"].filter((b) => b.id != id);
 
@@ -75,11 +63,11 @@ export class BookmarkItem {
    * @param {string} videoId
    * @param {stirng} id id
    */
-  async deleteBookmark(videoId, id) {
+  static async deleteBookmark(videoId, id) {
     if (!videoId && !id) {
       chrome.storage.sync.clear();
     } else if (videoId !== id) {
-      const item = await this.fetchBookmarks(videoId);
+      const item = await fetchBookmarks(videoId);
       const bookmarks = item["bookmarks"].filter((b) => {
         return b.id != id;
       });
@@ -98,7 +86,7 @@ export class BookmarkItem {
   /**
    * 書き出し
    */
-  async exportBookmark() {
+  static async exportBookmark() {
     const items = await chrome.storage.sync.get(null);
 
     let temp = {};
@@ -130,4 +118,20 @@ export class BookmarkItem {
     await writable.write(contents);
     await writable.close();
   }
+}
+
+/**
+ * ブックマークのリストを取得
+ * @param {string} videoId
+ * @returns
+ */
+function fetchBookmarks(videoId) {
+  if (!videoId) {
+    return undefined;
+  }
+  return new Promise((resolve) => {
+    chrome.storage.sync.get([videoId], (items) => {
+      resolve(items[videoId] ? JSON.parse(items[videoId]) : undefined);
+    });
+  });
 }

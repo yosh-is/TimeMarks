@@ -7,14 +7,17 @@ import { allowedUrls } from "../config/allowedUrls.js";
  * @param {string} title
  * @returns
  */
-const createBookmarkVideoTitle = (title) => {
+const createBookmarkVideoTitle = (db) => {
+  const { title, channelTitle, icon } = db;
   const html = `
   <summary>
     <div class="bookmark-title">
+      <img src=${icon} alt="" class="channel-icon"/>
+      <div class="channel-title">${channelTitle}</div>
+      <div class="bookmark-controls"></div>
       <div class="bookmark-video-title">
         ${title}
       </div>
-      <div class="bookmark-controls"></div>
     </div>
   </summary>
   `;
@@ -105,7 +108,7 @@ const createBookmarkItemElement = (db, videoId) => {
   const bookmarkItemElement = document.createElement("details");
   bookmarkItemElement.id = videoId;
 
-  const bookmarkVideoTitleElement = createBookmarkVideoTitle(db["title"]);
+  const bookmarkVideoTitleElement = createBookmarkVideoTitle(db);
 
   const bookmarkListElement = createBookmarkTimeList(db["bookmarks"]);
 
@@ -121,17 +124,13 @@ const createBookmarkItemElement = (db, videoId) => {
  * @param {string} currentVideo
  * @returns
  */
-const viewBookmarks = (allBookmarks = {}, currentVideo) => {
+const viewBookmarks = (allBookmarks = {}, currentTmId) => {
   const container = document.querySelector(".container");
-
-  const currentBookmarksElement = document.querySelector("#current-bookmarks");
-  const otherBookmarksElement = document.querySelector("#other-bookmarks");
-  currentBookmarksElement.innerHTML = "";
-  otherBookmarksElement.innerHTML = "";
 
   const videoIds = Object.keys(allBookmarks);
 
   if (videoIds.length === 0 || !(allBookmarks.constructor === Object)) {
+    container.innerHTML = "";
     return;
   }
 
@@ -140,11 +139,11 @@ const viewBookmarks = (allBookmarks = {}, currentVideo) => {
 
     const bookmarkItemElement = createBookmarkItemElement(bookmark, videoId);
 
-    if (videoId === currentVideo) {
+    if (videoId === currentTmId) {
       bookmarkItemElement.open = true;
-      currentBookmarksElement.appendChild(bookmarkItemElement);
+      container.insertAdjacentElement("afterbegin", bookmarkItemElement);
     } else {
-      otherBookmarksElement.appendChild(bookmarkItemElement);
+      container.insertAdjacentElement("beforeend", bookmarkItemElement);
     }
   });
 };
@@ -288,12 +287,18 @@ window.addEventListener("message", async (event) => {
   const tmId = event.data.id;
   if (allowedUrls.includes(event.origin)) {
     const db = await chrome.storage.sync.get(tmId);
-    const currentBookmarksElement = document.querySelector("#current-bookmarks");
-    currentBookmarksElement.innerHTML = "";
+
+    const container = document.querySelector(".container");
+
+    // const removeElement = document.querySelector(`#${tmId}`);
+    const removeElement = document.getElementById(tmId);
+    if (removeElement) {
+      removeElement.remove();
+    }
 
     const element = createBookmarkItemElement(JSON.parse(db[tmId]), tmId);
     element.open = true;
 
-    currentBookmarksElement.insertAdjacentElement("afterbegin", element);
+    container.insertAdjacentElement("afterbegin", element);
   }
 });

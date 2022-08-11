@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TimeMarks",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "__MSG_app_description__",
   "default_locale": "ja",
   "permissions": ["storage", "tabs"],
@@ -41,6 +41,12 @@
         "default": "Ctrl+B"
       },
       "description": "Save the current time of the video."
+    },
+    "sidepanel": {
+      "suggested_key": {
+        "default": "Alt+B"
+      },
+      "description": "Show/Hide sidepanel."
     }
   }
 }

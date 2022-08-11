@@ -13,6 +13,7 @@
 
 html {
   font-size: 62.5%;
+  user-select: none;
 }
 
 body::-webkit-scrollbar {
@@ -26,8 +27,7 @@ body {
 header {
   height: 70px;
   top: 0;
-  background-color: rgba(32, 33, 36, 0.9);
-  /* z-index: 99999; */
+  background-color: hsl(225, 6%, 20%);
 }
 
 .container-header {
@@ -53,10 +53,12 @@ header {
 .container::-webkit-scrollbar {
   width: 10px;
 }
+.container::-webkit-scrollbar:disabled {
+  display: none;
+}
 
 /* Track */
 .container::-webkit-scrollbar-track {
-  /* background: blue; */
 }
 
 /* Handle */
@@ -72,26 +74,42 @@ header {
   opacity: 0.8;
 }
 
-.bookmarks {
-  width: inherit;
-}
-
 /* bookmark-title */
 details > summary {
   list-style: none;
 }
+details > summary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
 .bookmark-title {
   position: relative;
-  display: flex;
-  gap: 5px;
+  display: grid;
+  grid-template: auto 1fr / auto 1fr auto;
+  align-items: center;
+  gap: 10px;
   justify-content: space-between;
   padding: 10px 20px;
   cursor: default;
 }
 
+.channel-icon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.channel-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.2rem;
+}
+
 .bookmark-video-title {
+  grid-column: 1 / 4;
   line-height: 2rem;
+  overflow-wrap: anywhere;
 }
 
 details:not([open]) .bookmark-video-title {
@@ -107,7 +125,7 @@ details:not([open]) .bookmark-video-title {
   border-style: solid;
   border-width: 0.5rem 0 0.5rem 0.85rem;
   border-color: transparent transparent transparent var(--font-color);
-  top: 15px;
+  top: 18px;
   left: 7px;
   opacity: 0;
   transform: rotate(0.25turn);
@@ -136,23 +154,7 @@ details:not([open]) .bookmark-title::after {
 
 .bookmark:hover {
   color: white;
-}
-
-.bookmark::after {
-  content: "";
-  position: absolute;
-  background: rgba(255, 255, 255, 0.5);
-  width: 4px;
-  height: 30px;
-  top: 16.2px;
-  left: 9px;
-  border-radius: 4px;
-  opacity: 0;
-  transition: all 0.15s;
-}
-.bookmark:hover::after {
-  content: "";
-  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .bookmark-desc {

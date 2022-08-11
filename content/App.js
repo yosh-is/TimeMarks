@@ -1,13 +1,10 @@
 import { BookmarkItem } from "./BookmarkItme.js";
 import { ActiveItem } from "../src/ActiveItem.js";
-import { toggle } from "./sidepanel.js";
+import { toggle, reload } from "./sidepanel.js";
 
 export class App {
   constructor() {
-    this.bookmarkItem = new BookmarkItem();
-
     this.videoPlayer; // HTMLMediaElement <video>
-
     this.addNewBookmarkEventHandler = this.addNewBookmarkEventHandler.bind(this);
   }
 
@@ -16,20 +13,6 @@ export class App {
     youtube: ".ytp-chrome-bottom",
     twitch: ".video-player__default-player .player-controls",
     unext: "div[class^='Controls__FlexLayout-sc-']",
-  };
-
-  // ビデオのタイトルを取得
-  #getTitle = {
-    youtube: () => {
-      return document.querySelector(".watch-active-metadata h1").innerText;
-    },
-    twitch: () => {
-      return document.querySelector("[data-a-target='stream-title']").title;
-    },
-    unext: () => {
-      const titleElm = document.querySelector("div[class^='Header__TitleContainer-sc-']");
-      return titleElm.textContent.replaceAll("\n", "").trim();
-    },
   };
 
   /**
@@ -74,8 +57,7 @@ export class App {
    */
   addNewBookmarkEventHandler() {
     const activeItem = new ActiveItem(document.location.href);
-
-    this.bookmarkItem.title = this.#getTitle[activeItem.siteName]();
+    const bookmarkItem = new BookmarkItem(activeItem.videoItem);
 
     const currentTime = this.videoPlayer.currentTime;
 
@@ -91,9 +73,9 @@ export class App {
       const res = () => {
         iframe.contentWindow.postMessage({ id: activeItem.tmId }, src);
       };
-      this.bookmarkItem.addBookmark(activeItem.tmId, newBookmark, res);
+      bookmarkItem.addBookmark(activeItem.tmId, newBookmark, res);
     }
-    this.bookmarkItem.addBookmark(activeItem.tmId, newBookmark);
+    bookmarkItem.addBookmark(activeItem.tmId, newBookmark);
   }
 
   mount() {
@@ -104,10 +86,11 @@ export class App {
       switch (type) {
         case "NEW":
           this.newVideoLoaded(value);
+          reload();
           break;
 
         case "UPDATE":
-          this.bookmarkItem.updateBookmark(videoId, value);
+          BookmarkItem.updateBookmark(videoId, value);
           break;
 
         case "PLAY":
@@ -115,16 +98,16 @@ export class App {
           break;
 
         case "DELETE":
-          this.bookmarkItem.deleteBookmark(videoId, value);
+          BookmarkItem.deleteBookmark(videoId, value);
           response();
           break;
 
         case "EXPORT":
-          this.bookmarkItem.exportBookmark();
+          BookmarkItem.exportBookmark();
           break;
 
         // サイドパネル
-        case "toggle":
+        case "sidepanel":
           toggle();
           break;
 

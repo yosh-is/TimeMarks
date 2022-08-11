@@ -1,6 +1,3 @@
-import { getCurrentTab } from "../utils/utils.js";
-import { ActiveItem } from "../src/ActiveItem.js";
-
 const allowedPaths = ["youtube.com/watch", "twitch.tv/videos", "unext.jp/play"];
 const allowedUrls = ["www.youtube.com", "www.twitch.tv", "video.unext.jp"];
 
@@ -12,12 +9,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   });
 
   if (checkPath && changeInfo.status === "complete") {
-    const activeItem = new ActiveItem(tab.url);
+    const activeItem = new URL(tab.url);
 
     chrome.tabs.sendMessage(tabId, {
       type: "NEW",
-      value: activeItem.siteName,
-      videoId: activeItem.videoId,
+      value: activeItem.hostname.split(".")[1],
+      videoId: activeItem.searchParams.get("v") ?? activeItem.pathname,
     });
   }
 });
@@ -30,49 +27,23 @@ chrome.commands.onCommand.addListener((command, tab) => {
     return tab.url.includes(path);
   });
 
-  if (checkPath && command === "add-tm") {
+  if (checkPath) {
     chrome.tabs.sendMessage(tab.id, {
-      type: "add-tm",
+      type: command,
     });
   }
 });
 
 // view sidepanel
 chrome.action.onClicked.addListener((tab) => {
-  console.log("sidepanel");
-
   const checkUrl = allowedUrls.find((path) => {
     return tab.url.includes(path);
   });
 
   if (checkUrl) {
-    chrome.tabs.sendMessage(tab.id, { type: "toggle" });
+    chrome.tabs.sendMessage(tab.id, { type: "sidepanel" });
   }
 });
-
-// chrome.storage の内容に変更があったよ
-// 便利
-// chrome.storage.onChanged.addListener((changes, areaName) => {
-//   console.log(changes, areaName);
-//   if (!changes) {
-//     return;
-//   }
-
-//   for (const key in changes) {
-//     if (Object.hasOwnProperty.call(changes, key)) {
-//       const element = changes[key];
-//       console.log(element.newValue);
-//       console.log(element.oldValue);
-//     }
-//   }
-// });
-
-// chrome.tabs.onActivated.addListener(async (activeInfo) => {
-//   // console.log("onActivated", activeInfo);
-//   const activeTab = await getCurrentTab();
-
-//   setPopup(activeTab.url);
-// });
 
 /**
  * popup の設定

@@ -1,6 +1,6 @@
 {
   "app_description": {
-    "message": "現在、視聴しているビデオのタイムスタンプを保存します。",
+    "message": "現在、視聴している動画サービスのタイムスタンプを保存します。",
     "description": "The description of the application, displayed in the web store."
   }
 }
