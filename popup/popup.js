@@ -9,13 +9,14 @@ import { allowedUrls } from "../config/allowedUrls.js";
  */
 const createBookmarkVideoTitle = (db) => {
   const { title, channelTitle, icon } = db;
+
   const html = `
   <summary>
-    <div class="bookmark-title">
-      <img src=${icon} alt="" class="channel-icon"/>
+    <div class="bk-title">
+      ${icon.startsWith("https") ? `<img src=${icon} alt="" class="channel-icon"/>` : icon}
       <div class="channel-title">${channelTitle}</div>
       <div class="bookmark-controls"></div>
-      <div class="bookmark-video-title">
+      <div class="bk-video-title">
         ${title}
       </div>
     </div>
@@ -107,6 +108,7 @@ const setBookmarkAttributes = (src, element) => {
 const createBookmarkItemElement = (db, videoId) => {
   const bookmarkItemElement = document.createElement("details");
   bookmarkItemElement.id = videoId;
+  bookmarkItemElement.classList.add("bk-container");
 
   const bookmarkVideoTitleElement = createBookmarkVideoTitle(db);
 
@@ -191,6 +193,7 @@ const onEdit = async (e) => {
 
   input.toggleAttribute("disabled");
   input.focus();
+  input.select();
 
   const activeTab = await getCurrentTab();
 
@@ -288,6 +291,8 @@ window.addEventListener("message", async (event) => {
   if (allowedUrls.includes(event.origin)) {
     const db = await chrome.storage.sync.get(tmId);
 
+    const addedId = JSON.parse(db[tmId])["bookmarks"].at(-1)["id"];
+
     const container = document.querySelector(".container");
 
     // const removeElement = document.querySelector(`#${tmId}`);
@@ -300,5 +305,10 @@ window.addEventListener("message", async (event) => {
     element.open = true;
 
     container.insertAdjacentElement("afterbegin", element);
+
+    // イベントを発生させる
+    const edit = element.querySelector(`.bookmark[id='${addedId}'] [data-action='edit']`);
+    const evt = new Event("click", { bubbles: true, cancelable: false });
+    edit.dispatchEvent(evt);
   }
 });
