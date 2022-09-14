@@ -2,8 +2,6 @@ const allowedPaths = ["youtube.com/watch", "twitch.tv/videos", "unext.jp/play"];
 const allowedUrls = ["www.youtube.com", "www.twitch.tv", "video.unext.jp"];
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // console.log({ tabId, changeInfo, tab });
-
   const checkPath = allowedPaths.find((path) => {
     return tab.url.includes(path);
   });
@@ -21,8 +19,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // shortcuts command
 chrome.commands.onCommand.addListener((command, tab) => {
-  console.log(`Command: ${command} ${tab.id}`);
-
   const checkPath = allowedPaths.find((path) => {
     return tab.url.includes(path);
   });
@@ -56,3 +52,7 @@ function setPopup(url) {
     chrome.action.disable();
   }
 }
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  console.log(changes, areaName);
+});

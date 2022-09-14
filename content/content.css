@@ -38,22 +38,42 @@
   z-index: 0;
 }
 
-/*  */
-.tm-side-panel {
+/* sidebar */
+.tm-sidebar {
   position: fixed;
-  background-color: rgb(32, 33, 36);
+  z-index: 5000;
+  background-color: rgba(32, 33, 36, 1);
   width: 400px;
   height: 100vh;
   top: 0;
   right: -400px;
   opacity: 0;
-  z-index: 5000;
   box-shadow: -1px 0 10px 5px rgba(32, 33, 36, 0.9);
 }
 
-.tm-side-panel iframe {
+.tm-sidebar iframe {
   position: relative;
   width: inherit;
   height: inherit;
   border: none;
+}
+
+.tm-sidebar-border {
+  position: fixed;
+  z-index: 5001;
+  width: 10px;
+  height: inherit;
+  background-color: transparent;
+  cursor: ew-resize;
+}
+
+.resize {
+  position: fixed;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+}
+.up {
+  z-index: 6000;
+  cursor: ew-resize;
 }

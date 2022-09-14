@@ -9,9 +9,16 @@ export class BookmarkItem {
    * ブックマークの追加
    * @param {string} videoId
    * @param {object} newBookmark
+   * @param callback
    * @return
    */
-  async addBookmark(videoId, newBookmark, res = this.defaulteres) {
+  async addBookmark(
+    videoId,
+    newBookmark,
+    callback = () => {
+      return;
+    }
+  ) {
     let bookmarks = [];
     const item = await fetchBookmarks(videoId);
 
@@ -33,27 +40,23 @@ export class BookmarkItem {
     };
 
     await chrome.storage.sync.set({ [videoId]: JSON.stringify(updateItem) });
-    res();
-  }
-
-  defaulteres() {
-    //
-    return;
+    callback();
   }
 
   /**
    * ブックマークの更新
    * @param {string} videoId
-   * @param {string} id
-   * @param {string} desc
+   * @param {} data
    */
-  static async updateBookmark(videoId, { id, desc }) {
+  static async updateBookmark(videoId, data) {
     const item = await fetchBookmarks(videoId);
-    const bookmark = item["bookmarks"].find((b) => b.id == id);
-    const bookmarks = item["bookmarks"].filter((b) => b.id != id);
 
-    bookmark["desc"] = desc;
-    item["bookmarks"] = [...bookmarks, bookmark].sort((a, b) => a.id - b.id);
+    const oldBk = item["bookmarks"].find((b) => b.id == data.id);
+    const bookmarks = item["bookmarks"].filter((b) => b.id != data.id);
+
+    const newBk = { ...oldBk, ...data };
+
+    item["bookmarks"] = [...bookmarks, newBk].sort((a, b) => a.id - b.id);
 
     chrome.storage.sync.set({ [videoId]: JSON.stringify(item) });
   }

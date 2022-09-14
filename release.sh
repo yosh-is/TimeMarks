@@ -10,6 +10,7 @@ cat <<'__EOT__' >exclude.lst
 *.sh
 *.gitignore
 */.git/*
+*/.sample/*
 __EOT__
 
 zip -r $dir_name.zip $dir_name -x @exclude.lst

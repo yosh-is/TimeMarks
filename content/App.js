@@ -61,27 +61,27 @@ export class App {
 
     const currentTime = this.videoPlayer.currentTime;
 
-    // ToDo newBookmark を考える
+    // newBookmark を考える
     const newBookmark = {
       time: currentTime,
       desc: "Timestamp at " + getTime(currentTime),
     };
 
-    const iframe = document.querySelector(".tm-side-panel iframe");
+    const iframe = document.querySelector(".tm-sidebar iframe");
     if (iframe) {
       const src = chrome.runtime.getURL("popup/popup.html");
-      const res = () => {
-        iframe.contentWindow.postMessage({ id: activeItem.tmId }, src);
+      const callback = () => {
+        iframe.contentWindow.postMessage({ tmId: activeItem.tmId }, src);
       };
-      bookmarkItem.addBookmark(activeItem.tmId, newBookmark, res);
+      bookmarkItem.addBookmark(activeItem.tmId, newBookmark, callback);
+    } else {
+      bookmarkItem.addBookmark(activeItem.tmId, newBookmark);
     }
-    bookmarkItem.addBookmark(activeItem.tmId, newBookmark);
   }
 
   mount() {
     chrome.runtime.onMessage.addListener((msg, sender, response) => {
       const { type, value, videoId } = msg;
-      console.log({ type, value, videoId });
 
       switch (type) {
         case "NEW":

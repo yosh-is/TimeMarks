@@ -1,3 +1,5 @@
+"use strict";
+
 import { getCurrentTab, htmlToElement, getTime } from "../utils/utils.js";
 import { ActiveItem } from "../src/ActiveItem.js";
 import { allowedUrls } from "../config/allowedUrls.js";
@@ -11,11 +13,13 @@ const createBookmarkVideoTitle = (db) => {
   const { title, channelTitle, icon } = db;
 
   const html = `
-  <summary>
+  <summary class="bk-title-container">
     <div class="bk-title">
       ${icon.startsWith("https") ? `<img src=${icon} alt="" class="channel-icon"/>` : icon}
       <div class="channel-title">${channelTitle}</div>
-      <div class="bookmark-controls"></div>
+      <div class="bookmark-controls">
+        ${createbkControlElement(["delete"])}
+      </div>
       <div class="bk-video-title">
         ${title}
       </div>
@@ -25,11 +29,12 @@ const createBookmarkVideoTitle = (db) => {
 
   const bookmarkVideoTitleElement = htmlToElement(html);
 
-  setBookmarkAttributes("delete", bookmarkVideoTitleElement);
+  setBookmarkAttributes(bookmarkVideoTitleElement);
 
   return bookmarkVideoTitleElement;
 };
 
+// -------------------------------------------------------------------------
 /**
  * ブックマークリストを作成
  * @param {Object} bookmarks
@@ -37,25 +42,28 @@ const createBookmarkVideoTitle = (db) => {
  */
 const createBookmarkTimeList = (bookmarks) => {
   const bookmarkTimeListElement = document.createElement("div");
-  bookmarkTimeListElement.className = "bookmark-time-list";
+  bookmarkTimeListElement.className = "bk-time-list";
 
   const sortedbks = bookmarks.sort((a, b) => a.time - b.time);
 
   for (const { id, time, desc } of sortedbks) {
     const html = `
-      <div id="${id}" class="bookmark" timestamp="${time}">
+      <div id="${id}" class="bookmark" data-timestamp="${time}" data-action="play">
         <div class="bookmark-desc">
           <input type="text" value="${desc}" disabled />
-          <label>${getTime(time)}</label>
+          <div class="bk-time">
+            <span class="time">${getTime(time)}</span>
+          </div>
         </div>
-        <div class="bookmark-controls"></div>
+        <div class="bookmark-controls">
+          ${createbkControlElement(["edit", "delete"])}
+        </div>
       </div>
     `;
 
     const bookmarkElement = htmlToElement(html);
 
-    setBookmarkAttributes(["edit", "delete"], bookmarkElement);
-    bookmarkElement.addEventListener("click", onPlay);
+    setBookmarkAttributes(bookmarkElement);
 
     bookmarkTimeListElement.appendChild(bookmarkElement);
   }
@@ -63,41 +71,48 @@ const createBookmarkTimeList = (bookmarks) => {
   return bookmarkTimeListElement;
 };
 
+const setBookmarkAttributes = (element) => {
+  element.addEventListener("click", (e) => {
+    console.log(e.target);
+    e.stopImmediatePropagation();
+
+    const onAction = {
+      play: onPlay,
+      edit: onEdit,
+      delete: onDelete,
+      timeBack: changeTime,
+      timeForward: changeTime,
+    };
+
+    const action = e.target.closest("[data-action]");
+    if (action) {
+      onAction[action.dataset.action](e);
+    }
+  });
+};
+
 /**
- * ボタンの追加
- * src = ["edit", "delete", "play"]
- * @param {string | string[]} src
- * @param {HTMLElement} controlsElement
+ *
+ * @param {string | string[]} acts
+ * @returns
  */
-const setBookmarkAttributes = (src, element) => {
-  const controlsElement = element.querySelector(".bookmark-controls");
+const createbkControlElement = (acts) => {
+  acts = [].concat(acts);
 
-  if (!Array.isArray(src)) {
-    src = [src];
-  }
-
-  src.forEach((value) => {
-    const html = `
+  let html = "";
+  acts.forEach((value) => {
+    html += `
     <button class="tm-icon-s" data-action="${value}">
       <svg viewBox="0 0 100 100">
         <use href="#icon-${value}" />
       </svg>
     </button>
     `;
-
-    controlsElement.insertAdjacentHTML("beforeend", html);
   });
 
-  controlsElement.addEventListener("click", (e) => {
-    e.stopImmediatePropagation();
-
-    const onAction = { edit: onEdit, delete: onDelete };
-    let action = e.target.closest("[data-action]").dataset.action ?? undefined;
-    if (action) {
-      onAction[action](e);
-    }
-  });
+  return html;
 };
+// -------------------------------------------------------------------------
 
 /**
  * videoId ごとの要素を作成
@@ -130,7 +145,6 @@ const viewBookmarks = (allBookmarks = {}, currentTmId) => {
   const container = document.querySelector(".container");
 
   const videoIds = Object.keys(allBookmarks);
-
   if (videoIds.length === 0 || !(allBookmarks.constructor === Object)) {
     container.innerHTML = "";
     return;
@@ -155,10 +169,11 @@ const viewBookmarks = (allBookmarks = {}, currentTmId) => {
  * @param {Event} e
  */
 const onPlay = async (e) => {
+  console.log("play");
   if (e.defaultPrevented) return;
 
   const bookmarkElement = e.currentTarget;
-  const bookmarkTime = bookmarkElement.getAttribute("timestamp");
+  const bookmarkTime = bookmarkElement.dataset.timestamp;
   const videoId = bookmarkElement.parentElement.parentElement.id;
 
   const activeTab = await getCurrentTab();
@@ -182,33 +197,76 @@ const onPlay = async (e) => {
  * @param {Event} e
  */
 const onEdit = async (e) => {
-  const targetElement = e.target.closest(".bookmark");
+  e.target.closest("button").blur();
+
+  const parentElement = e.target.closest(".bookmark");
+  const input = parentElement.querySelector("input");
 
   const videoId = e.target.closest("details").id;
-  const bookmarkId = targetElement.id;
-
-  const input = targetElement.querySelector("input");
-
-  const controlsElement = targetElement.querySelector(".bookmark-controls");
-
-  input.toggleAttribute("disabled");
-  input.focus();
-  input.select();
+  const bookmarkId = parentElement.id;
 
   const activeTab = await getCurrentTab();
 
-  const inputClick = (e) => {
-    e.stopImmediatePropagation();
-  };
-  const inputKeydown = (e) => {
-    if (e.key === "Enter") {
-      controlsElement.classList.remove("hidden");
+  toggleEdit();
 
-      input.blur();
-      input.toggleAttribute("disabled");
+  // edit mode
+  function toggleEdit() {
+    const time = parentElement.querySelector(".time").textContent;
+    const editable = `
+    <div class="bk-time">
+      <button class="tm-icon-s step" data-action="timeBack">
+        <svg id="icon-time" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="50" />
+          <rect width="60" height="10" x="20" y="45" ry="5" style="fill:white;"/>
+        </svg>
+      </button>
+      <span class="time">${time}</span>
+      <button class="tm-icon-s step" data-action="timeForward">
+        <svg id="icon-time" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="50" />
+          <rect width="60" height="10" x="20" y="45" ry="5" style="fill:white;" />
+          <rect width="10" height="60" x="45" y="20" ry="5" style="fill:white;" />
+        </svg>
+      </button>
+    </div>
+    `;
+    const uneditable = `
+      <div class="bk-time">
+        <span class="time">${time}</span>
+      </div>
+      `;
 
+    const editElement = parentElement.querySelector(".bk-time");
+    const isEdit = parentElement.hasAttribute("edit");
+    if (isEdit) {
+      // uneditable
+      console.log("uneditable");
+      editElement.replaceWith(htmlToElement(uneditable));
+      parentElement.removeAttribute("edit");
+      input.setAttribute("disabled", "true");
       input.removeEventListener("click", inputClick);
       input.removeEventListener("keydown", inputKeydown);
+      document.getSelection().removeAllRanges();
+    } else {
+      // editable
+      console.log("editable");
+      editElement.replaceWith(htmlToElement(editable));
+      parentElement.setAttribute("edit", "true");
+      input.removeAttribute("disabled");
+      input.focus();
+      input.select();
+      input.addEventListener("click", inputClick);
+      input.addEventListener("keydown", inputKeydown);
+    }
+  }
+
+  // input event listener
+  function inputClick(e) {
+    e.stopImmediatePropagation();
+  }
+  function inputKeydown(e) {
+    if (e.key === "Enter") {
+      toggleEdit();
 
       chrome.tabs.sendMessage(activeTab.id, {
         type: "UPDATE",
@@ -216,18 +274,15 @@ const onEdit = async (e) => {
         videoId: videoId,
       });
     }
-  };
-  input.addEventListener("click", inputClick);
-  input.addEventListener("keydown", inputKeydown);
-};
-
-const resTest = (removeElement) => {
-  removeElement.remove();
+  }
 };
 
 /**
  * 削除
  */
+const resTest = (removeElement) => {
+  removeElement.remove();
+};
 const onDelete = async (e) => {
   const removeElement = e.target.closest(".bookmark") ?? e.target.closest("details");
   const videoId = e.target.closest("details").id;
@@ -255,6 +310,44 @@ const onDeleteAll = async () => {
 };
 
 /**
+ * タイムスタンプの時間調整
+ */
+const changeTime = async (e) => {
+  const timeElement = e.target.closest(".bk-time");
+  const bkElement = e.target.closest(".bookmark");
+
+  const videoId = e.target.closest("details").id;
+  const bkId = bkElement.id;
+
+  const time = Number.parseFloat(bkElement.dataset.timestamp);
+  const step = e.target.closest(".step").dataset.action;
+
+  let chengedTime;
+  switch (step) {
+    case "timeBack":
+      chengedTime = time - 1;
+      break;
+
+    case "timeForward":
+      chengedTime = time + 1;
+      break;
+
+    default:
+      break;
+  }
+
+  timeElement.querySelector(".time").textContent = getTime(chengedTime);
+  bkElement.dataset.timestamp = chengedTime;
+
+  const activeTab = await getCurrentTab();
+  chrome.tabs.sendMessage(activeTab.id, {
+    type: "UPDATE",
+    value: { id: bkId, time: chengedTime },
+    videoId: videoId,
+  });
+};
+
+/**
  * 書き出し
  */
 const toExport = async () => {
@@ -272,9 +365,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (allowedUrls.includes(activeItem.origin)) {
     chrome.storage.sync.get(null, (allBookmarks) => {
-      if (!(Object.keys(allBookmarks).length === 0)) {
-        viewBookmarks(allBookmarks, activeItem.tmId);
-      }
+      console.log(allBookmarks);
+      viewBookmarks(allBookmarks, activeItem.tmId);
     });
     // popup.html header section
     document.querySelector(".bookmark-control-save").addEventListener("click", toExport);
@@ -287,7 +379,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 // iframe でのメッセージのやりとり
 window.addEventListener("message", async (event) => {
   // IMPORTANT: check the origin of the data!
-  const tmId = event.data.id;
+  const { tmId } = event.data;
+
   if (allowedUrls.includes(event.origin)) {
     const db = await chrome.storage.sync.get(tmId);
 
@@ -307,8 +400,12 @@ window.addEventListener("message", async (event) => {
     container.insertAdjacentElement("afterbegin", element);
 
     // イベントを発生させる
-    const edit = element.querySelector(`.bookmark[id='${addedId}'] [data-action='edit']`);
+    const newBkElement = element.querySelector(`.bookmark[id='${addedId}']`);
+    const edit = newBkElement.querySelector(`[data-action='edit']`);
     const evt = new Event("click", { bubbles: true, cancelable: false });
     edit.dispatchEvent(evt);
+    setTimeout(() => {
+      newBkElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
   }
 });

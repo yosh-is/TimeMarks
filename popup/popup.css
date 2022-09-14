@@ -21,13 +21,10 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-body {
-  width: 400px;
-}
-
 header {
   height: 70px;
   top: 0;
+  margin-bottom: 10px;
 }
 
 .container-header {
@@ -39,17 +36,45 @@ header {
   border-bottom: 1px solid hsl(230, 6%, 40%);
 }
 
+/* main */
 .container {
   position: relative;
   width: inherit;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 80px);
   background-color: var(--bg-color-dark);
   color: var(--font-color);
   font-size: 1.4rem;
   overflow-x: hidden;
   overflow-y: scroll;
 }
+.container::before {
+  /* やっつけマスク */
+  content: "";
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: 80px;
+  left: 10px;
+  background-color: var(--bg-color-dark);
+  clip-path: path("M 0,0 V 10 A 10,10 0 0 1 10,0 Z");
+  /* mask-image: image("#mask"); */
+  z-index: 5000;
+}
+.container::after {
+  /* やっつけマスク */
+  content: "";
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: 80px;
+  right: 10px;
+  background-color: var(--bg-color-dark);
+  clip-path: path("M 10,0 H 0 a 10,10 0 0 1 10,10 z");
+  /* mask-image: image("#mask"); */
+  z-index: 5000;
+}
 
+/* scrollbar */
 /* width */
 .container::-webkit-scrollbar {
   width: 10px;
@@ -64,15 +89,14 @@ header {
 
 /* Handle */
 .container::-webkit-scrollbar-thumb {
-  border: 3px solid rgb(32, 33, 36);
+  border: 3px solid var(--bg-color-dark);
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.5);
 }
 .container::-webkit-scrollbar-thumb:hover {
-  border: 0px solid rgb(32, 33, 36);
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.5);
+  border-width: 0px;
 }
+/* scrollbar */
 
 .bookmarks-menu {
   font-size: 1.2rem;
@@ -84,15 +108,25 @@ header {
 .bk-container {
   width: calc(100vw - 20px);
   height: auto;
-  margin: 10px;
-  border-radius: 10px;
+  margin: 0 10px 10px 10px;
 }
-.bk-container:is([open]) {
+.bk-container[open] :is(.bk-title-container, .bk-time-list) {
   background-color: hsl(230, 6%, 20%);
 }
+
 /* bookmark-title */
 summary {
   list-style: none;
+}
+
+.bk-title-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.bk-container[open] .bk-title-container {
+  border-radius: 10px 10px 0 0;
+  border-bottom: 1px solid var(--bg-color-dark);
 }
 
 .bk-title {
@@ -104,16 +138,13 @@ summary {
   justify-content: space-between;
   padding: 10px 20px;
   cursor: default;
-}
-.bk-container:is([open]) .bk-title {
-  border-bottom: 1px solid var(--bg-color-dark);
-}
-.bk-container:not([open]) .bk-title:hover {
-  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 }
-.bk-container:is([open]) .bk-title:hover {
+.bk-title:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+.bk-container[open] .bk-title:hover {
   border-radius: 10px 10px 0 0;
 }
 
@@ -146,24 +177,28 @@ summary {
 .bk-title::after {
   content: "";
   position: absolute;
-  border-style: solid;
-  border-width: 0.5rem 0 0.5rem 0.85rem;
-  border-color: transparent transparent transparent var(--font-color);
+  clip-path: path("M 0.7,10 V 0 L 9.3,5 Z");
+  background-color: var(--font-color);
+  width: 10px;
+  height: 10px;
   top: 18px;
-  left: 7px;
+  left: 6px;
   opacity: 0;
-  transform: rotate(0.25turn);
   transition: all 0.15s;
 }
 .bk-title:hover::after {
   opacity: 1;
 }
-.bk-container:not([open]) .bk-title::after {
-  transform: rotate(0turn);
+.bk-container[open] .bk-title::after {
+  transform: rotate(0.25turn);
 }
 /* bookmark-title */
 
 /* bookmark-time-list */
+.bk-container[open] .bk-time-list {
+  border-radius: 0 0 10px 10px;
+}
+
 .bookmark {
   position: relative;
   display: flex;
@@ -171,6 +206,10 @@ summary {
   height: 60px;
   padding: 5px 20px;
   cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+.bookmark[edit] {
+  height: 100px;
 }
 
 .bookmark:hover {
@@ -200,25 +239,31 @@ input[type="text"] {
   cursor: pointer;
   width: 100%;
   padding-right: 10px;
+  transition: all 0.15s ease-out;
 }
-
 input[type="text"]:is(:enabled, :focus) {
   background: rgba(255, 255, 255, 0.1);
   padding: 10px 10px;
   cursor: text;
 }
 
-label {
-  display: block;
-  margin-top: 3px;
+.bk-time {
+  margin-top: 4px;
   font-size: 1rem;
 }
-
-input[type="text"]:enabled + label {
-  position: absolute;
-  margin: 0;
-  bottom: -0.5rem;
-  color: gray;
+.bookmark[edit="true"] .bk-time {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2.5rem;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  text-align: center;
+}
+.bookmark[edit="true"] .time {
+  position: relative;
+  top: -1px;
+  width: calc(1.2rem * 6);
 }
 
 .bookmark-controls {
@@ -226,10 +271,6 @@ input[type="text"]:enabled + label {
   font-size: 0;
   line-height: 0;
   white-space: nowrap;
-}
-
-.hidden {
-  display: none;
 }
 /* bookmark-time-list */
 /* bookmark-container */
@@ -244,7 +285,7 @@ button {
 button[class*="tm-icon-"] {
   fill: rgba(255, 255, 255, 0);
 }
-button[class*="tm-icon-"]:hover {
+button[class*="tm-icon-"]:is(:hover, :focus) {
   fill: rgba(255, 255, 255, 0.1);
 }
 button[class*="tm-icon-"]:active {
@@ -261,6 +302,6 @@ button[class*="tm-icon-"]:active {
   height: 4rem;
 }
 
-symbol[id*="icon-"] path {
-  fill: white;
+[id*="icon-"] path {
+  fill: var(--font-color);
 }

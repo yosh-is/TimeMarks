@@ -55,6 +55,7 @@ export class ActiveItem extends URL {
 
   // チャンネルアイコンを取得
   #getChannelIcon = {
+    // アイコン表示させないと取得できなくなってしまったのでapiにする
     youtube: () => {
       return document.querySelector(".watch-active-metadata #img").getAttribute("src");
     },
